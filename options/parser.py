@@ -49,9 +49,18 @@ class Parser:
             day += datetime.timedelta(days=1)
             string_day = str_from_datetime(day)
         return week
+    
+    def get_groups(self):
+        res = requests.get('https://schedule.kantiana.ru/')
 
+        if res.status_code != 200:
+            return ERROR
+        
+        soup = bs4.BeautifulSoup(res.text, 'html.parser')
 
-if __name__ == '__main__':
-    app = Parser()
-    print(app.get_day_lessons('03_МОАИС_23_о_РБД_1', '2023-09-02'))
-    print(app.get_week_lessons('03_МОАИС_23_о_РБД_1', '1.9.2023'))
+        groups = []
+
+        for i in soup.find_all('option')[1:]:
+            groups.append(i.text.strip())
+        
+        return groups
