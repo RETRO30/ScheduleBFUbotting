@@ -58,9 +58,12 @@ class Parser:
         
         soup = bs4.BeautifulSoup(res.text, 'html.parser')
 
-        groups = []
+        groups = {'03':[], '04':[], '05': [], '06':[], '08':[]}
 
         for i in soup.find_all('option')[1:]:
-            groups.append(i.text.strip())
+            if i.text.startswith('0'):
+                num = i.text.split('_')[0]
+                if num in groups:
+                    groups[num].append(i.text.strip())
         
         return groups
