@@ -13,6 +13,11 @@ parser = Parser()
 all_groups = parser.get_groups()
 calendar = Calendar(language=RUSSIAN_LANGUAGE)
 
+def wrap_text(text, symbol):
+    wrapped_text = symbol * len(text) + '\n'
+    wrapped_text += text + '\n'
+    wrapped_text += symbol * len(text)
+    return wrapped_text
 
 def create_keyboard_for_get_group(page, num):
     data_array = sorted(all_groups[num])
@@ -24,17 +29,22 @@ def create_keyboard_for_get_group(page, num):
         keyboard.add(types.InlineKeyboardButton(text=data_array[i], callback_data=f"group-{data_array[i]}"))
     
     # Добавляем кнопки для переключения между страницами
+    buttons = []
     if page > 1:
-        keyboard.add(types.InlineKeyboardButton(text="<", callback_data=f"prev_page_get_group_{num}_{page - 1}"))
-    keyboard.add(types.InlineKeyboardButton(text=f'{page}', callback_data='None'))
+        buttons.append(types.InlineKeyboardButton(text="<", callback_data=f"prev_page_get_group_{num}_{page - 1}"))
+    else:
+        buttons.append(types.InlineKeyboardButton(text=" ", callback_data=f"None_prev_page"))
+    buttons.append(types.InlineKeyboardButton(text=f'{page}', callback_data='None'))
     if end_idx < len(data_array):
-        keyboard.add(types.InlineKeyboardButton(text=">", callback_data=f"next_page_get_group_{num}_{page + 1}"))
-    
+        buttons.append(types.InlineKeyboardButton(text=">", callback_data=f"next_page_get_group_{num}_{page + 1}"))
+    else:
+        buttons.append(types.InlineKeyboardButton(text=" ", callback_data=f"None_next_page"))
+    keyboard.row(*buttons)
     keyboard.add(types.InlineKeyboardButton('В главное меню', callback_data=f'main_menu'))
 
     return keyboard
 
-def move_menu(message, new_text, keyboard,  new_photo = None):
+def move_menu(message, new_text, keyboard,  new_photo = None, parse_mode=None):
         try:
             bot.delete_message(message.chat.id, message.id)
         except:
@@ -45,7 +55,7 @@ def move_menu(message, new_text, keyboard,  new_photo = None):
                             reply_markup=keyboard)
             else:
                 bot.send_message(message.chat.id, new_text,
-                                reply_markup=keyboard)
+                                reply_markup=keyboard, parse_mode=parse_mode)
         else:
             bot.send_photo(message.chat.id, types.InputFile(new_photo),
                         reply_markup=keyboard)
@@ -112,11 +122,11 @@ def callback_inline(call):
             if schedule and schedule != ERROR:
                 for date, lessons in schedule.items():
                     if lessons and lessons != ERROR:
-                        text += f'------\*{date}*------\n'
+                        text += f'<b>{date}</b>\n'
                         for lesson in lessons:
-                            text += f'  {lesson["number"]}\n    {lesson["time"]}\n    {lesson["name"]}\n   {lesson["teacher"]}\n   {lesson["group"]}\n'
+                            text += f'<b>{lesson["number"]}</b>\n{lesson["time"]}\n{lesson["name"]}\n{lesson["teacher"]}\n{lesson["class"]}\n{lesson["group"]}\n\n'
                         text += '\n\n'
-            move_menu(message, text, keyboard)
+            move_menu(message, text, keyboard, parse_mode='html')
         if call.data.startswith("prev_page_get_group_"):
             chat_id = call.message.chat.id
             message_id = call.message.message_id
