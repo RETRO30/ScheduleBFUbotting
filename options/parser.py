@@ -41,11 +41,11 @@ class Parser:
     def get_week_lessons(self, group, first_day):
         day = datetime_from_str(first_day)
         string_day = str_from_datetime(day)
-        week = []
+        week = {}
         for _ in range(7):
             lessons = self.get_day_lessons(group, string_day)
-            week.append({string_day: lessons})
-            time.sleep(0.1)
+            week.update({string_day: lessons})
+            time.sleep(0.001)
             day += datetime.timedelta(days=1)
             string_day = str_from_datetime(day)
         return week
