@@ -5,7 +5,7 @@ from telebot_calendar import Calendar, RUSSIAN_LANGUAGE
 import datetime
 
 ERROR = 'ERROR'
-main_menu_text = 'Привет, студент (дописать)'
+main_menu_text = 'Привет, <b>студент БФУ</b>.\nВ этом боте ты можешь найти своё расписание. Просто кликай по кнопкам и следуй инструкциям.'
 items_per_page = 15
 
 bot = TeleBot(get_token('token.txt'))
@@ -60,24 +60,22 @@ def move_menu(message, new_text, keyboard,  new_photo = None, parse_mode=None):
             bot.send_photo(message.chat.id, types.InputFile(new_photo),
                         reply_markup=keyboard)
 
-
-@bot.message_handler(commands=['start'])
 def main_menu(message):
     keyboard = types.InlineKeyboardMarkup(row_width=1)
     keyboard.add(types.InlineKeyboardButton('Получить расписание', callback_data=f'get_num'))
     keyboard.add(types.InlineKeyboardButton('Сказать спасибо автору', callback_data=f'donate'))
     text = main_menu_text
-    move_menu(message, text, keyboard)
+    move_menu(message, text, keyboard, parse_mode='html')
+
+@bot.message_handler(commands=['start'])
+def start(message):
+    main_menu(message)
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_inline(call):
     if call.message:
         if call.data == 'main_menu':
-            keyboard = types.InlineKeyboardMarkup(row_width=1)
-            keyboard.add(types.InlineKeyboardButton('Получить расписание', callback_data=f'get_num'))
-            keyboard.add(types.InlineKeyboardButton('Сказать спасибо автору', callback_data=f'donate'))
-            text = main_menu_text
-            move_menu(call.message, text, keyboard)
+            main_menu(call.message)
         if call.data == 'get_num':
             keyboard = types.InlineKeyboardMarkup(row_width=1)
             keyboard.add(types.InlineKeyboardButton('Бакалвриат', callback_data=f'get_group_03'))
@@ -94,9 +92,12 @@ def callback_inline(call):
             text = 'Выберите нужную группу:'
             move_menu(call.message, text, keyboard)
         if call.data == 'donate':
-            pass
+            keyboard = types.InlineKeyboardMarkup()
+            keyboard.add(types.InlineKeyboardButton('Назад', callback_data='main_menu'))
+            text = 'Если вам нравится этот бот и вы хотите чтобы он существовал и развивался дальше, вы можете поддержать автра:\n\n2200 7007 2020 6035'
+            move_menu(call.message, text, keyboard)
         if call.data.startswith('group-'):
-            group = call.data.split('-')[1]
+            _, group = call.data.split('-')
             now = datetime.datetime.now()
             text = 'Выберите дату:'
             keyboard = calendar.create_calendar(name=f'calendar-{group}', year=now.year, month=now.month)
@@ -107,13 +108,12 @@ def callback_inline(call):
             date = calendar.calendar_query_handler(bot=bot, call=call, name=name, action=action, year=year, month=month, day=day)
             if action == 'DAY':
                 selected_date = date.strftime('%d.%m.%Y')
-                callback_inline(types.CallbackQuery(id=call.id, from_user=call.from_user, chat_instance=call.chat_instance, json_string=None, message=call.message, data=f'day-group-{group}-{selected_date}'))
+                callback_inline(types.CallbackQuery(id=call.id, from_user=call.from_user, chat_instance=call.chat_instance, json_string=None, message=call.message, data=f'daygroup-{group}-{selected_date}'))
             if action == 'CANCEL':
                 callback_inline(types.CallbackQuery(id=call.id, from_user=call.from_user, chat_instance=call.chat_instance, json_string=None, message=call.message, data='main_menu'))
-        if call.data.startswith('day-group-'):
+        if call.data.startswith('daygroup-'):
             message = bot.send_message(call.message.chat.id, 'Подождите пару секунд... Составляем ваше расписание...')
-            group = call.data.split('-')[-2]
-            day = call.data.split('-')[-1]
+            _, group, day = call.data.split('-')
             schedule = parser.get_week_lessons(group, day)
             keyboard = types.InlineKeyboardMarkup(row_width=1)
             keyboard.add(types.InlineKeyboardButton('Назад', callback_data=f'group-{group}'))
@@ -143,6 +143,3 @@ def callback_inline(call):
             bot.edit_message_reply_markup(chat_id=chat_id, message_id=message_id, reply_markup=keyboard)
 
 bot.infinity_polling()
-            
-    
-        
