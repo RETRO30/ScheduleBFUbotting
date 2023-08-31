@@ -147,11 +147,16 @@ def callback_inline(call):
 
 
 if __name__ == '__main__':
+    started = True
+    bot.infinity_polling()
     while True:
         try:
-            bot.infinity_polling()
+            if not started:
+                bot.infinity_polling()
+                started = True
         except requests.exceptions.ReadTimeout:
             time.sleep(2)
+            started = False
             print('Restarting...')
         else:
             break
