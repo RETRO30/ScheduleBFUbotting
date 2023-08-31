@@ -145,18 +145,11 @@ def callback_inline(call):
             keyboard = create_keyboard_for_get_group(page, num)
             bot.edit_message_reply_markup(chat_id=chat_id, message_id=message_id, reply_markup=keyboard)
 
+def start_bot():
+    print('Bot started')
+    bot.polling()
 
 if __name__ == '__main__':
-    started = True
-    bot.infinity_polling()
+    start_bot()
     while True:
-        try:
-            if not started:
-                bot.infinity_polling()
-                started = True
-        except requests.exceptions.ReadTimeout:
-            time.sleep(2)
-            started = False
-            print('Restarting...')
-        else:
-            break
+        pass
