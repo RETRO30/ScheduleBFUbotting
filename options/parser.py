@@ -2,6 +2,7 @@ import requests
 import datetime
 import bs4
 import time
+from io import BytesIO
 
 ERROR = 'ERROR'
 
@@ -67,3 +68,8 @@ class Parser:
                     groups[num].append(i.text.strip())
         
         return groups
+    
+    def get_image_groups(self):
+        res = requests.get('https://schedule.kantiana.ru/static/group.jpg')
+        photo_data = BytesIO(res.content)
+        return photo_data

@@ -3,6 +3,8 @@ from options.config import get_token
 from options.parser import Parser
 from telebot_calendar import Calendar, RUSSIAN_LANGUAGE
 import datetime
+import requests
+import time
 
 ERROR = 'ERROR'
 main_menu_text = 'Привет, <b>студент БФУ</b>.\nВ этом боте ты можешь найти своё расписание. Просто кликай по кнопкам и следуй инструкциям.'
@@ -11,6 +13,7 @@ items_per_page = 15
 bot = TeleBot(get_token('token.txt'))
 parser = Parser()
 all_groups = parser.get_groups()
+
 calendar = Calendar(language=RUSSIAN_LANGUAGE)
 
 def wrap_text(text, symbol):
@@ -89,12 +92,12 @@ def callback_inline(call):
             page = 1
             num = call.data.split('_')[-1]
             keyboard = create_keyboard_for_get_group(page, num)
-            text = 'Выберите нужную группу:'
-            move_menu(call.message, text, keyboard)
+            text = 'Выберите нужную группу:'          
+            move_menu(call.message, text, keyboard, new_photo=parser.get_image_groups())
         if call.data == 'donate':
             keyboard = types.InlineKeyboardMarkup()
             keyboard.add(types.InlineKeyboardButton('Назад', callback_data='main_menu'))
-            text = 'Если вам нравится этот бот и вы хотите чтобы он существовал и развивался дальше, вы можете поддержать автра:\n\n2200 7007 2020 6035'
+            text = 'Если вам нравится этот бот и вы хотите чтобы он существовал и развивался дальше, вы можете поддержать автра:\n\n💳 - 2200 7007 2020 6035'
             move_menu(call.message, text, keyboard)
         if call.data.startswith('group-'):
             _, group = call.data.split('-')
@@ -142,4 +145,13 @@ def callback_inline(call):
             keyboard = create_keyboard_for_get_group(page, num)
             bot.edit_message_reply_markup(chat_id=chat_id, message_id=message_id, reply_markup=keyboard)
 
-bot.infinity_polling()
+
+if __name__ == '__main__':
+    while True:
+        try:
+            bot.infinity_polling()
+        except requests.exceptions.ReadTimeout:
+            time.sleep(2)
+            print('Restarting...')
+        else:
+            break
