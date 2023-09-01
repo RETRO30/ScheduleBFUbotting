@@ -146,5 +146,15 @@ def callback_inline(call):
  
 
 if __name__ == '__main__':
+    started = False
     keep_alive()
-    bot.polling(non_stop=True, interval=0)
+    while True:
+        try:
+            if not started:
+                bot.polling(non_stop=True, interval=0)
+        except Exception:
+            bot.stop_polling()
+            started = False
+    
+
+    bot.stop_polling
