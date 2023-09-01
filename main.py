@@ -143,10 +143,7 @@ def callback_inline(call):
             page = int(call.data.split("_")[-1])
             keyboard = create_keyboard_for_get_group(page, num)
             bot.edit_message_reply_markup(chat_id=chat_id, message_id=message_id, reply_markup=keyboard)
-
-def start_bot():
-    print('Bot started')
-    
+ 
 
 if __name__ == '__main__':
     keep_alive()
