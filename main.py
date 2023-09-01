@@ -3,8 +3,7 @@ from options.config import get_token
 from options.parser import Parser
 from telebot_calendar import Calendar, RUSSIAN_LANGUAGE
 import datetime
-import requests
-import time
+from background import keep_alive
 
 ERROR = 'ERROR'
 main_menu_text = 'Привет, <b>студент БФУ</b>.\nВ этом боте ты можешь найти своё расписание. Просто кликай по кнопкам и следуй инструкциям.'
@@ -147,9 +146,8 @@ def callback_inline(call):
 
 def start_bot():
     print('Bot started')
-    bot.polling()
+    
 
 if __name__ == '__main__':
-    start_bot()
-    while True:
-        pass
+    keep_alive()
+    bot.polling(non_stop=True, interval=0)
