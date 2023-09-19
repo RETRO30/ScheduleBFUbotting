@@ -1,3 +1,3 @@
-def get_token(file):
+def get_token():
     token = os.getenv('TOKEN')
     return token
