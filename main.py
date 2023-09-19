@@ -8,8 +8,7 @@ from background import keep_alive
 ERROR = 'ERROR'
 main_menu_text = 'Привет, <b>студент БФУ</b>.\nВ этом боте ты можешь найти своё расписание. Просто кликай по кнопкам и следуй инструкциям.'
 items_per_page = 15
-
-bot = TeleBot(get_token('token.txt'))
+bot = TeleBot(get_token())
 parser = Parser()
 all_groups = parser.get_groups()
 
