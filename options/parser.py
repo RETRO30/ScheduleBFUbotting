@@ -32,6 +32,7 @@ class Parser:
             lesson = {}
             lesson['number'] = i.find('h5').text.strip()
             lesson['time'] = i.find('h6').text.strip()
+            lesson['type'] = i.find('p', class_='card-text rounded-3 text-center').text.strip()
             lesson['name'] = i.find_all('p', class_='card-text text-center')[0].text
             lesson['teacher'] = i.find_all('p', class_='card-text text-center')[1].text
             lesson['class'] = i.find_all('p', class_='card-text text-center')[2].text.split('\n')[0]
