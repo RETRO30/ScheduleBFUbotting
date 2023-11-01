@@ -125,7 +125,7 @@ def callback_inline(call):
                     if lessons and lessons != ERROR:
                         text += f'<b>{date}</b>\n'
                         for lesson in lessons:
-                            text += f'<b>{lesson["number"]}</b>\n{lesson["time"]}\n{lesson["name"]}\n{lesson["teacher"]}\n{lesson["class"]}\n{lesson["group"]}\n\n'
+                            text += f'<b>{lesson["number"]}</b>\n{lesson["time"]}\n{lesson["type"]}\n{lesson["name"]}\n{lesson["teacher"]}\n{lesson["class"]}\n{lesson["group"]}\n\n'
                         text += '\n\n'
             move_menu(message, text, keyboard, parse_mode='html')
         if call.data.startswith("prev_page_get_group_"):
